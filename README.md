@@ -1,94 +1,138 @@
-> 🚀 本项目使用 Hyperledger Fabric 构建底层区块链网络, go 编写智能合约，应用层使用 gin+fabric-sdk-go ，前端使用 vue+element-ui
+# Fabric Realty
 
-如果想要联系我，可以关注我的公众号【SuperGopher】
+Enterprise blockchain case study for a real-estate transaction workflow built on Hyperledger Fabric.
 
-![微信公众号.png](https://user-images.githubusercontent.com/55381228/155444889-eacc0104-cd85-45c9-b7b7-9036e0c2334c.jpg)
+This repository demonstrates how a permissioned blockchain network can model property ownership, sales, transfers, and auditability across multiple business actors.
 
-## 教程
+## Why This Project Matters
 
-[万字长文，教你用go开发区块链应用](https://mp.weixin.qq.com/s/yDmGwfRjXxDJfgv1d0p3Ig)
+Real-estate transactions are a good fit for enterprise blockchain because they need:
 
-## 环境要求
+- Shared state between multiple parties
+- Clear asset ownership records
+- Auditable transaction history
+- Role-based access and workflow control
+- Reliable backend integration with business applications
 
-安装了 Docker 和 Docker Compose 的 Linux 环境
+This project is useful as a learning and portfolio case for Hyperledger Fabric, Go chaincode, backend API integration, and enterprise-style blockchain architecture.
 
-附 Docker 安装教程：[点此跳转](Install.md)
+## Tech Stack
 
-## 部署
+| Layer | Technology |
+| --- | --- |
+| Blockchain network | Hyperledger Fabric |
+| Smart contract / chaincode | Go |
+| Backend API | Go, Gin, fabric-sdk-go |
+| Frontend | Vue, Element UI |
+| Infrastructure | Docker, Docker Compose |
+| Explorer | Hyperledger Explorer |
 
-1. 克隆本项目放在任意目录下，例：`/root/fabric-realty`
+## System Architecture
 
+```mermaid
+flowchart LR
+    User[User / Admin] --> Web[Vue + Element UI Frontend]
+    Web --> API[Go Gin Backend]
+    API --> SDK[fabric-sdk-go]
+    SDK --> Fabric[Hyperledger Fabric Network]
+    Fabric --> CC[Go Chaincode]
+    Fabric --> Ledger[(Distributed Ledger)]
+    Explorer[Hyperledger Explorer] --> Fabric
+```
 
-2. 给予项目权限，执行 `sudo chmod -R +x /root/fabric-realty/`
+## Business Workflow
 
+The system models a permissioned real-estate workflow:
 
-3. 进入 `network` 目录，执行 `./start.sh` 启动区块链网络以及部署智能合约
+1. Admin creates real-estate assets for property owners.
+2. Property owners view assets under their account.
+3. Owners list properties for sale.
+4. Buyers purchase listed properties and trigger payment-related workflow state.
+5. Owners confirm payment receipt.
+6. Ownership is updated on-chain after the transaction completes.
+7. A transaction can be cancelled before completion or expire after the valid period.
+8. Owners can also initiate property donation/transfer flows with recipient confirmation.
 
+## Repository Structure
 
-4. 进入 `application` 目录，执行 `./build.sh` 编译镜像，完成后继续执行 `./start.sh`
-   启动应用，最后可使用浏览器访问 [http://localhost:8000/web](http://localhost:8000/web)
+```text
+application/server   Go backend using Gin and fabric-sdk-go
+application/web      Vue + Element UI frontend
+chaincode            Go chaincode for real-estate business logic
+network              Hyperledger Fabric network configuration
+network/explorer     Optional blockchain explorer setup
+```
 
+## Run Locally
 
-5. （可选）进入 `network/explorer` 目录，执行 `./start.sh` 启动区块链浏览器后，访问 [http://localhost:8080](http://localhost:8080)，用户名 admin，密码
-   123456
+Requirements:
 
-## 停止或重启
+- Linux environment
+- Docker
+- Docker Compose
 
-注意，默认执行 `./start.sh` 脚本时都会调用 `./stop.sh` ，所以如果想持久化数据的情况下停止或重启本项目，请不要重新执行 `./start.sh` ，正确姿势参考：
+Start the blockchain network and deploy chaincode:
 
-1. （如果启动了区块链浏览器）进入 `network/explorer` 目录，执行 `docker-compose stop` 停止区块链浏览器，执行 `docker-compose start`
-   启动区块链浏览器，执行 `docker-compose restart` 重启区块链浏览器
+```bash
+cd network
+./start.sh
+```
 
-2. 进入 `network` 目录，执行 `docker-compose stop` 停止区块链网络，执行 `docker-compose start`
-   启动区块链网络，执行 `docker-compose restart` 重启区块链网络
+Build and start the application:
 
-3. 进入 `application` 目录，区块链应用是无状态的，可以直接执行 `./stop.sh` 关闭区块链应用，执行 `./start.sh` 关闭区块链应用
+```bash
+cd application
+./build.sh
+./start.sh
+```
 
-## 完全清理环境
+Open the web app:
 
-注意，该操作会将所有数据清空。按照该顺序：
+```text
+http://localhost:8000/web
+```
 
-1. （如果启动了区块链浏览器）进入 `network/explorer` 目录，执行 `./stop.sh` 关闭区块链浏览器
+Optional explorer:
 
-2. 进入 `network` 目录，执行 `./stop.sh` 关闭区块链网络并清理链码容器
+```bash
+cd network/explorer
+./start.sh
+```
 
-3. 进入 `application` 目录，执行 `./stop.sh` 关闭区块链应用
+Open explorer:
 
-## 目录结构
+```text
+http://localhost:8080
+username: admin
+password: 123456
+```
 
-- `application/server` : `fabric-sdk-go` 调用链码（即智能合约），`gin` 提供外部访问接口（RESTful API）
+## What I Would Improve Next
 
+To make this stronger as a production-grade enterprise blockchain project, I would add:
 
-- `application/web` : `vue` + `element-ui` 提供前端展示页面
+- English API documentation and request examples
+- Chaincode unit tests for ownership, sale, cancellation, and transfer flows
+- Architecture Decision Records explaining Fabric network design choices
+- CI workflow for linting and test execution
+- Clear screenshots/GIFs of the user workflow
+- Security notes around identity, endorsement policy, and access control
+- A smaller Docker quickstart for easier reviewer onboarding
 
+## Portfolio Notes
 
-- `chaincode` : go 编写的链码（即智能合约）
+This repository is currently positioned as an enterprise blockchain learning case. The most valuable next step is not adding more UI, but making the architecture and chaincode behavior easier for reviewers to verify quickly.
 
+For remote Web3/blockchain roles, this project shows experience with:
 
-- `network` : Hyperledger Fabric 区块链网络配置
+- Permissioned blockchain concepts
+- Asset modeling and ownership transfer
+- Go-based chaincode and backend integration
+- Dockerized blockchain development environments
+- Full-stack blockchain application structure
 
-## 功能流程
+## Related Profile
 
-管理员为用户业主创建房地产。
+See my GitHub profile for the broader Web3 portfolio roadmap:
 
-业主查看名下房产信息。
-
-业主发起销售，所有人都可查看销售列表，购买者购买后进行扣款操作，并等待业主确认收款，交易完成后，更新房产持有人。在有效期期间可以随时取消交易，有效期到期后自动关闭交易。
-
-业主发起捐赠，指定受赠人，受赠人确认接收受赠前，双方可取消捐赠/受赠。
-
-## 演示效果
-
-![login](https://user-images.githubusercontent.com/55381228/159389012-4d3d8617-2bd8-4d9c-bacf-452f97cc9bbc.png)
-
-![addreal](https://user-images.githubusercontent.com/55381228/159389026-9ca119bd-fd5f-4b89-b003-a09907ce0cdf.png)
-
-![info](https://user-images.githubusercontent.com/55381228/159389035-b84f2de1-18f9-48a7-93f5-db9dd20a5a4c.png)
-
-![explorer](https://user-images.githubusercontent.com/55381228/159389002-0dbe329a-09aa-4aaf-aba8-4a98e4fdcc39.png)
-
-## 喝杯奶茶
-
-|  ![微信打赏](https://user-images.githubusercontent.com/55381228/155450359-0ce92911-fd3f-4d6b-9878-e40a17b34652.jpg)   | ![支付宝打赏](https://user-images.githubusercontent.com/55381228/155450383-509d0475-5497-4983-8583-137946b4d78e.jpg)  |
-|  ----  | ----  |
-| 微信  | 支付宝 |
+https://github.com/2hevva
